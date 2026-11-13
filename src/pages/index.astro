@@ -1,0 +1,532 @@
+---
+import "../styles/tokens.css";
+import "../styles/components.css";
+
+const pilotEmail = "hello@nitwise.com";
+const pilotHref = `mailto:${pilotEmail}?subject=Nitwise%20pilot`;
+const fixDiff = [
+  ["del", "- await withRetry(() => chargeCustomer(invoice));"],
+  ["add", "+ const key = `invoice-${invoice.id}`;"],
+  [
+    "add",
+    "+ await withRetry(() => chargeCustomer(invoice, { idempotencyKey: key }));",
+  ],
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nitwise: code review with judgment</title>
+    <meta
+      name="description"
+      content="Independent AI code review for GitHub pull requests. Nitwise posts only real defects, each with evidence from your code and a fix."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">
+      Skip to content
+    </a>
+
+    <header class="site-header">
+      <div class="site-header__bar">
+        <a class="brand" href="#top" aria-label="Nitwise home">
+          <span class="brand__mark" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path
+                d="M2.5 7.5l3 3 6-7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+          </span>
+          Nitwise
+        </a>
+        <nav class="site-nav" aria-label="Main">
+          <ul>
+            <li>
+              <a href="#how">How it works</a>
+            </li>
+            <li>
+              <a href="#review">Review comment</a>
+            </li>
+            <li>
+              <a href="#trust">Your code</a>
+            </li>
+            <li>
+              <a href="#pilot">Pilot</a>
+            </li>
+          </ul>
+        </nav>
+        <div class="site-header__actions">
+          <button class="theme-toggle" id="theme-toggle" type="button">
+            Dark mode
+          </button>
+          <a class="btn btn--secondary btn--sm" href="#pilot">
+            Join the pilot
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main id="content">
+      <section class="section section--hero hero" id="top">
+        <div class="hero__glow" aria-hidden="true"></div>
+        <div class="hero__inner">
+          <div>
+            <a class="pill" href="#pilot">
+              <span class="mono">
+                <span class="bracket">[</span>
+                <strong>pilot</strong>
+                <span class="bracket">]</span>
+              </span>
+              <strong>Paid pilots open</strong>
+              <span class="bracket pill__more" aria-hidden="true">
+                ·
+              </span>
+              <span class="pill__more">five places for GitHub teams</span>
+            </a>
+          </div>
+          <h1 class="h1">
+            <span>Code review</span>{" "}
+            <span class="brand-text">with judgment.</span>
+          </h1>
+          <p class="lead">
+            Nitwise reviews each GitHub pull request and posts only what a
+            senior engineer would stop the merge for: the defect, the evidence
+            in your code, and a fix. Built for teams of 3 to 30 developers who
+            write much of their code with coding agents.
+          </p>
+          <div class="hero__actions">
+            <div class="btn-row">
+              <a class="btn btn--primary" href="#pilot">
+                Join the paid pilot
+              </a>
+              <a class="btn btn--ghost" href="#review">
+                See a review comment
+              </a>
+            </div>
+            <ul class="meta-list">
+              <li>Private beta</li>
+              <li aria-hidden="true">·</li>
+              <li>Up to 5 inline comments per pull request</li>
+              <li aria-hidden="true">·</li>
+              <li>Independent of the agent that wrote the code</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="problem">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow">
+              <span class="bracket">[</span>the problem
+              <span class="bracket">]</span>
+            </span>
+            <h2 class="h2-display">AI review became a second queue.</h2>
+            <p class="lead lead--section">
+              Coding agents write changes faster than senior engineers can check
+              them. AI reviewers often answer with a dozen comments per pull
+              request: a few useful, several restating the diff, some wrong. In
+              a July 2026 study of 31,073 comments from one widely used AI
+              reviewer, developers rejected 56.3% of them (Lin et al.). The
+              author ends up reviewing the bot before anyone reviews the code.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="how">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow">
+              <span class="bracket">[</span>how it works
+              <span class="bracket">]</span>
+            </span>
+            <h2 class="h2">Every finding is checked before it is posted.</h2>
+          </div>
+          <div class="grid-features">
+            <article class="card">
+              <div class="card__head">
+                <span class="card__icon" aria-hidden="true">
+                  1
+                </span>
+                <div>
+                  <h3 class="h3-card">Reads the change</h3>
+                  <span class="text-small">Triage first</span>
+                </div>
+              </div>
+              <p class="text-card">
+                Nitwise classifies each pull request and skips the model for
+                changes that only touch documentation, formatting, lockfiles or
+                generated files.
+              </p>
+            </article>
+            <article class="card">
+              <div class="card__head">
+                <span class="card__icon card__icon--calm" aria-hidden="true">
+                  2
+                </span>
+                <div>
+                  <h3 class="h3-card">Gathers evidence</h3>
+                  <span class="text-small">Context and static checks</span>
+                </div>
+              </div>
+              <p class="text-card">
+                It reads the code around the change and checks changed
+                dependencies against known vulnerabilities.
+              </p>
+            </article>
+            <article class="card">
+              <div class="card__head">
+                <span class="card__icon" aria-hidden="true">
+                  3
+                </span>
+                <div>
+                  <h3 class="h3-card">Verifies separately</h3>
+                  <span class="text-small">A second pass</span>
+                </div>
+              </div>
+              <p class="text-card">
+                A separate model pass checks each finding against the code. A
+                finding it cannot confirm is dropped.
+              </p>
+            </article>
+            <article class="card">
+              <div class="card__head">
+                <span class="card__icon card__icon--calm" aria-hidden="true">
+                  4
+                </span>
+                <div>
+                  <h3 class="h3-card">Posts little</h3>
+                  <span class="text-small">One review per push</span>
+                </div>
+              </div>
+              <p class="text-card">
+                One summary and up to 5 inline comments. A finding is posted
+                once, and its thread resolves when a later commit fixes it.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="review">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow">
+              <span class="bracket">[</span>review comment
+              <span class="bracket">]</span>
+            </span>
+            <h2 class="h2-display">A defect, the proof, the fix.</h2>
+            <p class="lead lead--section">
+              Comments cover security holes, data corruption and regressions.
+              Style and naming stay out.
+            </p>
+          </div>
+          <div class="section-body on-page-panel stack">
+            <article class="review" aria-labelledby="review-title">
+              <div class="review__meta">
+                <span class="badge badge--p1">[P1]</span>
+                <span class="review__path">src/billing/invoice.ts</span>
+                <span>line 84</span>
+              </div>
+              <h3 class="h3-panel" id="review-title">
+                The retry resends the charge without an idempotency key
+              </h3>
+              <p class="text-panel">
+                When the payment provider times out,{" "}
+                <code class="mono">chargeCustomer</code> is called again with a
+                new request. If the first call succeeded, the customer is billed
+                twice.
+              </p>
+              <p class="review__evidence">
+                Evidence:{" "}
+                <code>withRetry(() =&gt; chargeCustomer(invoice))</code> at line
+                84 builds a fresh request on each attempt. The provider only
+                deduplicates requests that share an idempotency key.
+              </p>
+              <pre
+                class="code-block"
+                tabindex="0"
+                role="region"
+                aria-label="Suggested fix"
+              ><code>{fixDiff.map(([kind, line]) => <span class={`diff diff--${kind}`}>{line}</span>)}</code></pre>
+            </article>
+            <ul class="badge-row" aria-label="Severity levels">
+              <li>
+                <span class="badge badge--p0">
+                  [P0] Data loss, security, outage
+                </span>
+              </li>
+              <li>
+                <span class="badge badge--p1">[P1] Bug in normal use</span>
+              </li>
+              <li>
+                <span class="badge badge--p2">
+                  [P2] Edge case or regression
+                </span>
+              </li>
+              <li>
+                <span class="badge badge--calm">[verified]</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="trust">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow">
+              <span class="bracket">[</span>your code
+              <span class="bracket">]</span>
+            </span>
+            <h2 class="h2">Comments only. A person merges.</h2>
+          </div>
+          <div class="grid-features">
+            <article class="card">
+              <div class="card__head">
+                <span class="card__icon" aria-hidden="true">
+                  1
+                </span>
+                <div>
+                  <h3 class="h3-card">Never merges</h3>
+                  <span class="text-small">Comments only</span>
+                </div>
+              </div>
+              <p class="text-card">
+                Nitwise never approves, requests changes, pushes or merges. Your
+                reviewers keep the decision.
+              </p>
+            </article>
+            <article class="card">
+              <div class="card__head">
+                <span class="card__icon card__icon--calm" aria-hidden="true">
+                  2
+                </span>
+                <div>
+                  <h3 class="h3-card">Narrow permissions</h3>
+                  <span class="text-small">Chosen at install</span>
+                </div>
+              </div>
+              <p class="text-card">
+                Contents read, pull requests read and write, metadata read, on
+                the repositories you pick.
+              </p>
+            </article>
+            <article class="card">
+              <div class="card__head">
+                <span class="card__icon" aria-hidden="true">
+                  3
+                </span>
+                <div>
+                  <h3 class="h3-card">No code kept</h3>
+                  <span class="text-small">Deleted after each review</span>
+                </div>
+              </div>
+              <p class="text-card">
+                Source code exists only while a review runs and never appears in
+                logs. A finding keeps its path, line range and commit.
+              </p>
+            </article>
+            <article class="card">
+              <div class="card__head">
+                <span class="card__icon card__icon--calm" aria-hidden="true">
+                  4
+                </span>
+                <div>
+                  <h3 class="h3-card">Code is data</h3>
+                  <span class="text-small">Read, never obeyed</span>
+                </div>
+              </div>
+              <p class="text-card">
+                Nitwise treats text in your repository and pull requests as
+                data, never as instructions. The model has no tools and no
+                network access.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="pilot">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow">
+              <span class="bracket">[</span>paid pilot
+              <span class="bracket">]</span>
+            </span>
+            <h2 class="h2-display">Five teams, real pull requests.</h2>
+            <p class="lead lead--section">
+              The private beta has places for five paying teams on GitHub. A
+              pilot costs $29 a month and includes two feedback calls a month
+              with the developer who builds Nitwise.
+            </p>
+          </div>
+          <div class="section-body on-page-panel">
+            <div class="panel stack">
+              <h3 class="h3-panel">A good fit if your team</h3>
+              <ul class="fit-list text-panel">
+                <li>has 3 to 30 developers and keeps its code on GitHub</li>
+                <li>opens 30 to 150 pull requests a month</li>
+                <li>
+                  writes much of its code with Claude Code, Cursor, Codex or
+                  Copilot
+                </li>
+                <li>has one or two senior engineers who review everything</li>
+              </ul>
+              <div class="pilot-cta">
+                <a class="btn btn--primary" href={pilotHref}>
+                  Email us about a pilot
+                </a>
+                <span class="text-small">{pilotEmail}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__grid">
+        <div class="site-footer__blurb">
+          <a class="brand brand--footer" href="#top" aria-label="Nitwise home">
+            <span class="brand__mark" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M2.5 7.5l3 3 6-7"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </svg>
+            </span>
+            Nitwise
+          </a>
+          <p>
+            Independent AI code review for pull requests. Real issues, less
+            noise.
+          </p>
+        </div>
+        <nav aria-label="Product">
+          <h2>[product]</h2>
+          <ul>
+            <li>
+              <a href="#how">How it works</a>
+            </li>
+            <li>
+              <a href="#review">Review comment</a>
+            </li>
+            <li>
+              <a href="#trust">Your code</a>
+            </li>
+          </ul>
+        </nav>
+        <nav aria-label="Pilot">
+          <h2>[pilot]</h2>
+          <ul>
+            <li>
+              <a href="#pilot">Paid pilot</a>
+            </li>
+            <li>
+              <a href={pilotHref}>{pilotEmail}</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div class="site-footer__legal">
+        <span>© 2026 Nitwise</span>
+        <span class="made-by">
+          Made with{" "}
+          <span class="made-by__heart" aria-hidden="true">
+            ♥
+          </span>
+          <span class="sr-only">love</span> by{" "}
+          <a class="link" href="https://github.com/ashishpatelcs">
+            Ashish Patel
+          </a>
+        </span>
+        <span>Not affiliated with GitHub.</span>
+      </div>
+    </footer>
+
+    <script>
+      const root = document.documentElement;
+      const button = document.getElementById("theme-toggle")!;
+      const dark = matchMedia("(prefers-color-scheme: dark)");
+      const current = () =>
+        root.dataset.theme || (dark.matches ? "dark" : "light");
+      const sync = () => {
+        const next = current() === "dark" ? "light" : "dark";
+        button.textContent = next === "dark" ? "Dark mode" : "Light mode";
+        button.setAttribute("aria-label", `Switch to ${next} mode`);
+      };
+      button.addEventListener("click", () => {
+        root.dataset.theme = current() === "dark" ? "light" : "dark";
+        sync();
+      });
+      dark.addEventListener("change", sync);
+      sync();
+    </script>
+  </body>
+</html>
+
+<style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+  .on-page-panel {
+    max-width: var(--container-panel);
+    margin-inline: auto;
+  }
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+  .fit-list {
+    display: grid;
+    gap: var(--space-2);
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+  .fit-list li::marker {
+    color: var(--color-fg-3);
+  }
+  .pilot-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+  }
+  .brand--footer {
+    width: fit-content;
+  }
+  .made-by {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+  }
+  .made-by__heart {
+    color: var(--color-critical);
+  }
+  .made-by a {
+    text-decoration: none;
+  }
+  .made-by a:hover,
+  .made-by a:focus-visible {
+    text-decoration: underline;
+  }
+</style>

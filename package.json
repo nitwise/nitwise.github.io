@@ -1,0 +1,19 @@
+{
+  "name": "nitwise.github.io",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "astro build && node --test tests/*.test.mjs",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "astro": "7.4.12"
+  },
+  "devDependencies": {
+    "prettier": "3.10.1",
+    "prettier-plugin-astro": "1.1.2"
+  }
+}
