@@ -298,8 +298,6 @@ pre {
   box-shadow: var(--shadow-card);
   font-size: var(--text-meta);
   color: var(--color-fg-2);
-  transition: background-color var(--default-transition-duration)
-    var(--ease-out);
 }
 
 .pill > strong {

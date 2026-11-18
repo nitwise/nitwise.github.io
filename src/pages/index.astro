@@ -11,6 +11,19 @@ const fixDiff = [
     "+ const invoice = await repo.findOne({ id, tenantId: ctx.tenantId });",
   ],
 ];
+const sample = {
+  path: "src/invoices/invoice.service.ts",
+  line: 88,
+  title: "Missing tenant check on invoice update",
+  summary: [
+    { code: "updateInvoice" },
+    " loads the invoice by id and saves it without checking ",
+    { code: "invoice.tenantId" },
+    " against ",
+    { code: "ctx.tenantId" },
+    ". The controller guard verifies authentication only.",
+  ],
+};
 const pilotLabel = "Email us about a pilot";
 ---
 
@@ -127,16 +140,18 @@ const pilotLabel = "Email us about a pilot";
             <div class="review__meta">
               <span class="badge">[example]</span>
               <span class="badge badge--p1">[P1]</span>
-              <span class="review__path">src/invoices/invoice.service.ts</span>
-              <span>line 88</span>
+              <span class="review__path">{sample.path}</span>
+              <span>line {sample.line}</span>
             </div>
-            <p class="h3-panel">Missing tenant check on invoice update</p>
+            <p class="h3-panel">{sample.title}</p>
             <p class="text-panel review__fade">
-              <code class="mono">updateInvoice</code> loads the invoice by id
-              and saves it without checking{" "}
-              <code class="mono">invoice.tenantId</code> against{" "}
-              <code class="mono">ctx.tenantId</code>. The controller guard
-              verifies authentication only.
+              {sample.summary.map((part) =>
+                typeof part === "string" ? (
+                  part
+                ) : (
+                  <code class="mono">{part.code}</code>
+                ),
+              )}
             </p>
           </figure>
         </div>
@@ -159,8 +174,8 @@ const pilotLabel = "Email us about a pilot";
             <p class="figure">
               <strong class="figure__num">56.3%</strong>
               <span class="figure__text">
-                of 31,073 comments from one widely used AI reviewer were
-                rejected by developers.
+                of 31,073 reviewed comments from one widely used AI reviewer
+                were rejected by developers.
               </span>
               <span class="figure__cite mono">Lin et al., July 2026</span>
             </p>
@@ -261,20 +276,20 @@ const pilotLabel = "Email us about a pilot";
               <div class="review__meta">
                 <span class="badge">[example]</span>
                 <span class="badge badge--p1">[P1]</span>
-                <span class="review__path">
-                  src/invoices/invoice.service.ts
-                </span>
-                <span>line 88</span>
+                <span class="review__path">{sample.path}</span>
+                <span>line {sample.line}</span>
               </div>
               <h3 class="h3-panel" id="review-title">
-                Missing tenant check on invoice update
+                {sample.title}
               </h3>
               <p class="text-panel">
-                <code class="mono">updateInvoice</code> loads the invoice by id
-                and saves it without checking{" "}
-                <code class="mono">invoice.tenantId</code> against{" "}
-                <code class="mono">ctx.tenantId</code>. The controller guard
-                verifies authentication only.
+                {sample.summary.map((part) =>
+                  typeof part === "string" ? (
+                    part
+                  ) : (
+                    <code class="mono">{part.code}</code>
+                  ),
+                )}
               </p>
               <p class="review__evidence">
                 Failure: a user in tenant A sends{" "}
@@ -388,7 +403,7 @@ const pilotLabel = "Email us about a pilot";
               <h3 class="h3-panel">Pilot terms</h3>
               <ul class="fit-list text-panel">
                 <li>Team plan at $29 a month, locked for 12 months</li>
-                <li>Fortnightly feedback calls with the developer</li>
+                <li>Feedback calls every two weeks with the developer</li>
                 <li>Permission to count your outcomes in published metrics</li>
               </ul>
               <div class="pilot-cta">
