@@ -5,13 +5,13 @@ import "../styles/components.css";
 const pilotEmail = "hello@nitwise.com";
 const pilotHref = `mailto:${pilotEmail}?subject=Nitwise%20pilot`;
 const fixDiff = [
-  ["del", "- await withRetry(() => chargeCustomer(invoice));"],
-  ["add", "+ const key = `invoice-${invoice.id}`;"],
+  ["del", "- const invoice = await repo.findOne({ id });"],
   [
     "add",
-    "+ await withRetry(() => chargeCustomer(invoice, { idempotencyKey: key }));",
+    "+ const invoice = await repo.findOne({ id, tenantId: ctx.tenantId });",
   ],
 ];
+const pilotLabel = "Email us about a pilot";
 ---
 
 <!doctype html>
@@ -68,8 +68,8 @@ const fixDiff = [
           <button class="theme-toggle" id="theme-toggle" type="button">
             Dark mode
           </button>
-          <a class="btn btn--secondary btn--sm" href="#pilot">
-            Join the pilot
+          <a class="btn btn--secondary btn--sm" href={pilotHref}>
+            {pilotLabel}
           </a>
         </div>
       </div>
@@ -80,7 +80,7 @@ const fixDiff = [
         <div class="hero__glow" aria-hidden="true"></div>
         <div class="hero__inner">
           <div>
-            <a class="pill" href="#pilot">
+            <p class="pill">
               <span class="mono">
                 <span class="bracket">[</span>
                 <strong>pilot</strong>
@@ -91,7 +91,7 @@ const fixDiff = [
                 ·
               </span>
               <span class="pill__more">five places for GitHub teams</span>
-            </a>
+            </p>
           </div>
           <h1 class="h1">
             <span>Code review</span>{" "}
@@ -105,8 +105,8 @@ const fixDiff = [
           </p>
           <div class="hero__actions">
             <div class="btn-row">
-              <a class="btn btn--primary" href="#pilot">
-                Join the paid pilot
+              <a class="btn btn--primary" href={pilotHref}>
+                {pilotLabel}
               </a>
               <a class="btn btn--ghost" href="#review">
                 See a review comment
@@ -120,6 +120,25 @@ const fixDiff = [
               <li>Independent of the agent that wrote the code</li>
             </ul>
           </div>
+          <figure
+            class="review review--crop"
+            aria-label="Example review comment"
+          >
+            <div class="review__meta">
+              <span class="badge">[example]</span>
+              <span class="badge badge--p1">[P1]</span>
+              <span class="review__path">src/invoices/invoice.service.ts</span>
+              <span>line 88</span>
+            </div>
+            <p class="h3-panel">Missing tenant check on invoice update</p>
+            <p class="text-panel review__fade">
+              <code class="mono">updateInvoice</code> loads the invoice by id
+              and saves it without checking{" "}
+              <code class="mono">invoice.tenantId</code> against{" "}
+              <code class="mono">ctx.tenantId</code>. The controller guard
+              verifies authentication only.
+            </p>
+          </figure>
         </div>
       </section>
 
@@ -131,13 +150,19 @@ const fixDiff = [
               <span class="bracket">]</span>
             </span>
             <h2 class="h2-display">AI review became a second queue.</h2>
-            <p class="lead lead--section">
+            <p class="lead lead--section lead--narrow">
               Coding agents write changes faster than senior engineers can check
               them. AI reviewers often answer with a dozen comments per pull
-              request: a few useful, several restating the diff, some wrong. In
-              a July 2026 study of 31,073 comments from one widely used AI
-              reviewer, developers rejected 56.3% of them (Lin et al.). The
+              request: a few useful, several restating the diff, some wrong. The
               author ends up reviewing the bot before anyone reviews the code.
+            </p>
+            <p class="figure">
+              <strong class="figure__num">56.3%</strong>
+              <span class="figure__text">
+                of 31,073 comments from one widely used AI reviewer were
+                rejected by developers.
+              </span>
+              <span class="figure__cite mono">Lin et al., July 2026</span>
             </p>
           </div>
         </div>
@@ -222,7 +247,7 @@ const fixDiff = [
         <div class="container">
           <div class="section-head">
             <span class="eyebrow">
-              <span class="bracket">[</span>review comment
+              <span class="bracket">[</span>example review comment
               <span class="bracket">]</span>
             </span>
             <h2 class="h2-display">A defect, the proof, the fix.</h2>
@@ -234,24 +259,31 @@ const fixDiff = [
           <div class="section-body on-page-panel stack">
             <article class="review" aria-labelledby="review-title">
               <div class="review__meta">
+                <span class="badge">[example]</span>
                 <span class="badge badge--p1">[P1]</span>
-                <span class="review__path">src/billing/invoice.ts</span>
-                <span>line 84</span>
+                <span class="review__path">
+                  src/invoices/invoice.service.ts
+                </span>
+                <span>line 88</span>
               </div>
               <h3 class="h3-panel" id="review-title">
-                The retry resends the charge without an idempotency key
+                Missing tenant check on invoice update
               </h3>
               <p class="text-panel">
-                When the payment provider times out,{" "}
-                <code class="mono">chargeCustomer</code> is called again with a
-                new request. If the first call succeeded, the customer is billed
-                twice.
+                <code class="mono">updateInvoice</code> loads the invoice by id
+                and saves it without checking{" "}
+                <code class="mono">invoice.tenantId</code> against{" "}
+                <code class="mono">ctx.tenantId</code>. The controller guard
+                verifies authentication only.
               </p>
               <p class="review__evidence">
-                Evidence:{" "}
-                <code>withRetry(() =&gt; chargeCustomer(invoice))</code> at line
-                84 builds a fresh request on each attempt. The provider only
-                deduplicates requests that share an idempotency key.
+                Failure: a user in tenant A sends{" "}
+                <code>PATCH /invoices/&lt;id&gt;</code> with an id from tenant B
+                and overwrites it.
+              </p>
+              <p class="text-panel">
+                Fix: add <code class="mono">tenantId: ctx.tenantId</code> to the
+                lookup and return 404 when no row matches.
               </p>
               <pre
                 class="code-block"
@@ -259,6 +291,9 @@ const fixDiff = [
                 role="region"
                 aria-label="Suggested fix"
               ><code>{fixDiff.map(([kind, line]) => <span class={`diff diff--${kind}`}>{line}</span>)}</code></pre>
+              <p class="review__meta">
+                Category: security, authorization. Confidence: high.
+              </p>
             </article>
             <ul class="badge-row" aria-label="Severity levels">
               <li>
@@ -291,68 +326,36 @@ const fixDiff = [
             </span>
             <h2 class="h2">Comments only. A person merges.</h2>
           </div>
-          <div class="grid-features">
-            <article class="card">
-              <div class="card__head">
-                <span class="card__icon" aria-hidden="true">
-                  1
-                </span>
-                <div>
-                  <h3 class="h3-card">Never merges</h3>
-                  <span class="text-small">Comments only</span>
-                </div>
+          <div class="section-body on-page-panel">
+            <dl class="panel manifest">
+              <div class="manifest__row">
+                <dt class="mono">approve, request changes, push, merge</dt>
+                <dd class="text-panel">
+                  Never. Your reviewers keep the decision.
+                </dd>
               </div>
-              <p class="text-card">
-                Nitwise never approves, requests changes, pushes or merges. Your
-                reviewers keep the decision.
-              </p>
-            </article>
-            <article class="card">
-              <div class="card__head">
-                <span class="card__icon card__icon--calm" aria-hidden="true">
-                  2
-                </span>
-                <div>
-                  <h3 class="h3-card">Narrow permissions</h3>
-                  <span class="text-small">Chosen at install</span>
-                </div>
+              <div class="manifest__row">
+                <dt class="mono">repository permissions</dt>
+                <dd class="text-panel">
+                  Contents read, pull requests read and write, metadata read, on
+                  the repositories you pick.
+                </dd>
               </div>
-              <p class="text-card">
-                Contents read, pull requests read and write, metadata read, on
-                the repositories you pick.
-              </p>
-            </article>
-            <article class="card">
-              <div class="card__head">
-                <span class="card__icon" aria-hidden="true">
-                  3
-                </span>
-                <div>
-                  <h3 class="h3-card">No code kept</h3>
-                  <span class="text-small">Deleted after each review</span>
-                </div>
+              <div class="manifest__row">
+                <dt class="mono">source code</dt>
+                <dd class="text-panel">
+                  Exists only while a review runs and never appears in logs. A
+                  finding keeps its path, line range and commit.
+                </dd>
               </div>
-              <p class="text-card">
-                Source code exists only while a review runs and never appears in
-                logs. A finding keeps its path, line range and commit.
-              </p>
-            </article>
-            <article class="card">
-              <div class="card__head">
-                <span class="card__icon card__icon--calm" aria-hidden="true">
-                  4
-                </span>
-                <div>
-                  <h3 class="h3-card">Code is data</h3>
-                  <span class="text-small">Read, never obeyed</span>
-                </div>
+              <div class="manifest__row">
+                <dt class="mono">text in your repository</dt>
+                <dd class="text-panel">
+                  Treated as data, never as instructions. The model has no tools
+                  and no network access.
+                </dd>
               </div>
-              <p class="text-card">
-                Nitwise treats text in your repository and pull requests as
-                data, never as instructions. The model has no tools and no
-                network access.
-              </p>
-            </article>
+            </dl>
           </div>
         </div>
       </section>
@@ -366,9 +369,8 @@ const fixDiff = [
             </span>
             <h2 class="h2-display">Five teams, real pull requests.</h2>
             <p class="lead lead--section">
-              The private beta has places for five paying teams on GitHub. A
-              pilot costs $29 a month and includes two feedback calls a month
-              with the developer who builds Nitwise.
+              The private beta has places for five paying teams on GitHub. Pilot
+              teams work directly with the developer who builds Nitwise.
             </p>
           </div>
           <div class="section-body on-page-panel">
@@ -383,9 +385,15 @@ const fixDiff = [
                 </li>
                 <li>has one or two senior engineers who review everything</li>
               </ul>
+              <h3 class="h3-panel">Pilot terms</h3>
+              <ul class="fit-list text-panel">
+                <li>Team plan at $29 a month, locked for 12 months</li>
+                <li>Fortnightly feedback calls with the developer</li>
+                <li>Permission to count your outcomes in published metrics</li>
+              </ul>
               <div class="pilot-cta">
                 <a class="btn btn--primary" href={pilotHref}>
-                  Email us about a pilot
+                  {pilotLabel}
                 </a>
                 <span class="text-small">{pilotEmail}</span>
               </div>
@@ -418,7 +426,10 @@ const fixDiff = [
           </p>
         </div>
         <nav aria-label="Product">
-          <h2>[product]</h2>
+          <h2>
+            <span aria-hidden="true">[</span>product
+            <span aria-hidden="true">]</span>
+          </h2>
           <ul>
             <li>
               <a href="#how">How it works</a>
@@ -432,10 +443,13 @@ const fixDiff = [
           </ul>
         </nav>
         <nav aria-label="Pilot">
-          <h2>[pilot]</h2>
+          <h2>
+            <span aria-hidden="true">[</span>pilot
+            <span aria-hidden="true">]</span>
+          </h2>
           <ul>
             <li>
-              <a href="#pilot">Paid pilot</a>
+              <a href="#pilot">Pilot terms</a>
             </li>
             <li>
               <a href={pilotHref}>{pilotEmail}</a>
@@ -520,7 +534,7 @@ const fixDiff = [
     color: var(--color-fg);
   }
   .made-by__heart {
-    color: var(--color-critical);
+    color: var(--color-accent);
   }
   .made-by a {
     text-decoration: none;
